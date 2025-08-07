@@ -7,7 +7,13 @@
     "build": "tsc",
     "test": "jest",
     "dev": "ts-node src/index.ts",
-    "deploy": "serverless deploy"
+    "deploy": "serverless deploy",
+    "infra:install": "cd infra && npm install",
+    "infra:deploy": "cd infra && cdk deploy",
+    "infra:destroy": "cd infra && cdk destroy",
+    "infra:diff": "cd infra && cdk diff",
+    "build:lambda": "node build-lambda.js",
+    "setup": "npm install && npm run infra:install"
   },
   "keywords": [
     "nodejs",
@@ -18,24 +24,27 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "aws-cdk-lib": "^2.138.0",
-    "constructs": "^10.3.0",
     "@aws-sdk/client-dynamodb": "^3.550.0",
+    "@aws-sdk/client-lambda": "^3.550.0",
     "@aws-sdk/lib-dynamodb": "^3.550.0",
-    "axios": "^1.6.8",
     "aws-xray-sdk-core": "^3.5.0",
+    "axios": "^1.6.8",
+    "dotenv": "^16.6.1",
+    "joi": "^18.0.0",
     "jsonwebtoken": "^9.0.2",
     "rate-limiter-flexible": "^5.0.0",
-    "serverless": "^3.38.0"
+    "yup": "^1.7.0"
   },
   "devDependencies": {
-    "typescript": "^5.4.5",
-    "ts-node": "^10.9.2",
-    "jest": "^29.7.0",
-    "ts-jest": "^29.1.2",
+    "@types/aws-lambda": "^8.10.137",
+    "@types/dotenv": "^8.2.0",
     "@types/jest": "^29.5.12",
     "@types/node": "^20.12.7",
-    "aws-cdk": "^2.138.0",
-    "@types/aws-lambda": "^8.10.137"
+    "esbuild": "^0.25.8",
+    "esbuild-plugin-tsconfig-paths": "^1.0.1",
+    "jest": "^29.7.0",
+    "ts-jest": "^29.1.2",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.4.5"
   }
 }
