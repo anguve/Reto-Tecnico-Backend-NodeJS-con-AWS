@@ -1,26 +1,35 @@
 import { SWAPI_URL } from '../../config/api/swapi.config';
-
+import { buildWeatherUrl } from '../../config/api/weather.config';
+import { charactersListSchema, weatherDataSchema } from '../../validators/merged.validator';
+import pLimit from 'p-limit';
+import { Character, WeatherData } from './interfaces/merged.interfaces';
 export class MergedService {
   async fetchMergedData(): Promise<{
     totalCharacters: number;
-    characters: any[];
+    characters: (Character & { weatherData: WeatherData })[];
     error?: string;
   }> {
     try {
       const charactersData = await this.fetchJson(SWAPI_URL);
-      const charactersList = this.normalizeCharacters(charactersData);
+      const charactersListRaw = this.normalizeCharacters(charactersData);
+
+      const charactersList = await charactersListSchema.validate(charactersListRaw);
+
+      const limit = pLimit(5);
 
       const mergedData = await Promise.all(
-        charactersList.map(async (character) => {
-          const planetNumber = this.extractPlanetNumber(character.homeworld);
-          const weatherUrl = this.buildWeatherUrl(planetNumber);
-          const weatherData = await this.fetchJson(weatherUrl);
-
-          return {
-            ...character,
-            weatherData,
-          };
-        }),
+        charactersList.map((character) =>
+          limit(async () => {
+            const planetNumber = this.extractPlanetNumber(character.homeworld);
+            const weatherUrl = this.buildWeatherUrl(planetNumber);
+            const rawWeatherData = await this.fetchJson(weatherUrl);
+            const weatherData = await weatherDataSchema.validate(rawWeatherData);
+            return {
+              ...character,
+              weatherData,
+            } as Character & { weatherData: WeatherData };
+          }),
+        ),
       );
 
       return {
@@ -58,6 +67,6 @@ export class MergedService {
 
   private buildWeatherUrl(planetNumber: number): string {
     const latitude = Math.min(planetNumber + 0.6895, 90);
-    return `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=167.6917&current_weather=true`;
+    return buildWeatherUrl(latitude);
   }
 }

@@ -34,6 +34,7 @@
     "joi": "^18.0.0",
     "jsonwebtoken": "^9.0.2",
     "node-fetch": "^3.3.2",
+    "p-limit": "^6.2.0",
     "rate-limiter-flexible": "^5.0.0",
     "yup": "^1.7.0"
   },
