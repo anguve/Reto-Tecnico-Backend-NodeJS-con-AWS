@@ -27,11 +27,13 @@
     "@aws-sdk/client-dynamodb": "^3.550.0",
     "@aws-sdk/client-lambda": "^3.550.0",
     "@aws-sdk/lib-dynamodb": "^3.550.0",
+    "@types/node-fetch": "^2.6.13",
     "aws-xray-sdk-core": "^3.5.0",
     "axios": "^1.6.8",
     "dotenv": "^16.6.1",
     "joi": "^18.0.0",
     "jsonwebtoken": "^9.0.2",
+    "node-fetch": "^3.3.2",
     "rate-limiter-flexible": "^5.0.0",
     "yup": "^1.7.0"
   },

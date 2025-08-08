@@ -13,6 +13,13 @@ export interface WeatherApiResponse {
   current_weather: CurrentWeather;
 }
 
+export interface SwapiPeopleApiResponse {
+  count: number;
+  next: string | null;
+  previous: string | null;
+  results: SwapiPeopleResponse[];
+}
+
 /**
  * Interface for units used in the Weather API response.
  */
@@ -59,6 +66,19 @@ export interface SwapiPeopleResponse {
   created: string;
   edited: string;
   url: string;
+}
+
+export interface CharacterWithWeather {
+  name: string;
+  gender: string;
+  homeworld: string;
+  weather: {
+    temperature: number;
+    windspeed: number;
+    winddirection: number;
+    is_day: boolean;
+    weathercode: number;
+  };
 }
 
 /**

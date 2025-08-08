@@ -1,31 +1,63 @@
 import { SWAPI_URL } from '../../config/api/swapi.config';
-import { WEATHER_URL } from '../../config/api/weather.config';
-import {
-  MergedData,
-  SwapiPeopleResponse,
-  WeatherApiResponse,
-} from './interfaces/merged.interfaces';
 
 export class MergedService {
-  async fetchMergedData(): Promise<MergedData> {
-    const [characterResponse, weatherResponse] = await Promise.all([
-      this.fetchFromUrl(SWAPI_URL),
-      this.fetchFromUrl(WEATHER_URL),
-    ]);
+  async fetchMergedData(): Promise<{
+    totalCharacters: number;
+    characters: any[];
+    error?: string;
+  }> {
+    try {
+      const charactersData = await this.fetchJson(SWAPI_URL);
+      const charactersList = this.normalizeCharacters(charactersData);
 
-    const characters = (await characterResponse.json()) as SwapiPeopleResponse[];
-    const weatherData = (await weatherResponse.json()) as WeatherApiResponse;
+      const mergedData = await Promise.all(
+        charactersList.map(async (character) => {
+          const planetNumber = this.extractPlanetNumber(character.homeworld);
+          const weatherUrl = this.buildWeatherUrl(planetNumber);
+          const weatherData = await this.fetchJson(weatherUrl);
 
-    return { characters, weatherData };
+          return {
+            ...character,
+            weatherData,
+          };
+        }),
+      );
+
+      return {
+        totalCharacters: charactersList.length,
+        characters: mergedData,
+      };
+    } catch (error) {
+      console.error('Error en fetchMergedData:', error);
+      return {
+        totalCharacters: 0,
+        characters: [],
+        error: error instanceof Error ? error.message : String(error),
+      };
+    }
   }
 
-  private async fetchFromUrl(url: string): Promise<Response> {
+  private async fetchJson<T = any>(url: string): Promise<T> {
     const response = await fetch(url);
-
     if (!response.ok) {
-      throw new Error(`Failed to fetch from ${url}. Status: ${response.status}`);
+      throw new Error(`Error fetching ${url}: ${response.status} ${response.statusText}`);
     }
+    return (await response.json()) as T;
+  }
 
-    return response;
+  private normalizeCharacters(data: any): any[] {
+    if (Array.isArray(data?.results)) return data.results;
+    if (Array.isArray(data)) return data;
+    return [];
+  }
+
+  private extractPlanetNumber(homeworldUrl: string): number {
+    const match = homeworldUrl.match(/\/planets\/(\d+)/);
+    return match ? parseInt(match[1], 10) : 0;
+  }
+
+  private buildWeatherUrl(planetNumber: number): string {
+    const latitude = Math.min(planetNumber + 0.6895, 90);
+    return `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=167.6917&current_weather=true`;
   }
 }
