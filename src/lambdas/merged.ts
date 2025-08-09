@@ -17,6 +17,6 @@ const controller = new MergedController(service);
  * @param {unknown} event - The incoming event payload. Currently unused.
  * @returns {Promise<unknown>} The result of the `getMergedData` method.
  */
-export const handler = async (event: unknown) => {
+export const handler = async (_event: unknown) => {
   return await controller.getMergedData();
 };

@@ -17,6 +17,12 @@ export class InfraStack extends cdk.Stack {
       removalPolicy: cdk.RemovalPolicy.DESTROY,
     });
 
+    const storageTable = new dynamodb.Table(this, 'TablaStorage', {
+      tableName: 'StorageTable',
+      partitionKey: { name: 'id', type: dynamodb.AttributeType.STRING },
+      removalPolicy: cdk.RemovalPolicy.DESTROY,
+    });
+
     const mergedLambda = new lambda.Function(this, 'MergedLambda', {
       functionName: 'MergedLambda',
       runtime: lambda.Runtime.NODEJS_20_X,
@@ -29,12 +35,32 @@ export class InfraStack extends cdk.Stack {
       environment: {
         AWS_ACCOUNT_ID: envs.AWS_ACCOUNT_ID,
         LAMBDA_MERGE_FUNCTION_ARN: envs.LAMBDA_MERGE_FUNCTION_ARN,
+        LAMBDA_STORAGE_FUNCTION_ARN: envs.LAMBDA_MERGE_FUNCTION_ARN,
+        LAMBDA_TIMEOUT_SECONDS: envs.LAMBDA_TIMEOUT_SECONDS.toString(),
+        LAMBDA_MEMORY_SIZE: envs.LAMBDA_MEMORY_SIZE.toString(),
+      },
+    });
+
+    const storageLambda = new lambda.Function(this, 'StorageLambda', {
+      functionName: 'StorageLambda',
+      runtime: lambda.Runtime.NODEJS_20_X,
+      handler: 'storage.handler',
+      timeout: cdk.Duration.seconds(envs.LAMBDA_TIMEOUT_SECONDS),
+      memorySize: envs.LAMBDA_MEMORY_SIZE,
+      code: lambda.Code.fromAsset(lambdasPath, {
+        exclude: ['history.*', 'merged.*', '*.ts', '*.d.ts', '*.js.map', '*.d.ts.map'],
+      }),
+      environment: {
+        AWS_ACCOUNT_ID: envs.AWS_ACCOUNT_ID,
+        LAMBDA_MERGE_FUNCTION_ARN: envs.LAMBDA_MERGE_FUNCTION_ARN,
+        LAMBDA_STORAGE_FUNCTION_ARN: envs.LAMBDA_MERGE_FUNCTION_ARN,
         LAMBDA_TIMEOUT_SECONDS: envs.LAMBDA_TIMEOUT_SECONDS.toString(),
         LAMBDA_MEMORY_SIZE: envs.LAMBDA_MEMORY_SIZE.toString(),
       },
     });
 
     tabla.grantReadWriteData(mergedLambda);
+    storageTable.grantReadWriteData(storageLambda);
 
     const api = new apigateway.RestApi(this, 'RimacApi', {
       restApiName: 'Rimac Prueba API',
@@ -46,5 +72,9 @@ export class InfraStack extends cdk.Stack {
     api.root
       .addResource('fusionados')
       .addMethod('GET', new apigateway.LambdaIntegration(mergedLambda));
+
+    api.root
+      .addResource('almacenar')
+      .addMethod('POST', new apigateway.LambdaIntegration(storageLambda));
   }
 }

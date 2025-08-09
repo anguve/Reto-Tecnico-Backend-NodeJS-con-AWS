@@ -1,6 +1,6 @@
 const esbuild = require('esbuild');
-const lambdas = ['merged'];
-// const lambdas = ['history', 'merged', 'storage'];
+const lambdas = ['merged', 'storage', 'history'];
+
 Promise.all(
   lambdas.map((name) =>
     esbuild

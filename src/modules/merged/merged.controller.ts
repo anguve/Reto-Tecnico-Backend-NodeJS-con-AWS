@@ -7,7 +7,9 @@ export class MergedController {
    * Handles the process of retrieving merged data.
    *
    * Calls the `fetchMergedData` method from the service layer and returns
-   * a structured HTTP response with status code and body.
+   * a structured HTTP response with status code and JSON stringified body.
+   *
+   * @returns {Promise<{statusCode: number, body: string}>} The HTTP response object with status and body.
    */
   async getMergedData() {
     try {

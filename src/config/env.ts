@@ -30,6 +30,13 @@ const environmentVariablesSchema = object({
       'LAMBDA_FUNCTION_ARN must be a valid ARN format',
     ),
 
+  LAMBDA_STORAGE_FUNCTION_ARN: string()
+    .required('LAMBDA_FUNCTION_ARN is required')
+    .matches(
+      /^arn:aws:lambda:[a-z\-0-9]+:\d{12}:function:[\w-]+$/,
+      'LAMBDA_FUNCTION_ARN must be a valid ARN format',
+    ),
+
   LAMBDA_TIMEOUT_SECONDS: number()
     .required('LAMBDA_TIMEOUT_SECONDS is required')
     .min(1, 'LAMBDA_TIMEOUT_SECONDS must be at least 1 second')
