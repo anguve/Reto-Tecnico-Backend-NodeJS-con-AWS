@@ -23,7 +23,7 @@ const environmentVariablesSchema = object({
     .length(12, 'AWS_ACCOUNT_ID must be exactly 12 digits')
     .matches(/^\d+$/, 'AWS_ACCOUNT_ID must be numeric'),
 
-  LAMBDA_FUNCTION_ARN: string()
+  LAMBDA_MERGE_FUNCTION_ARN: string()
     .required('LAMBDA_FUNCTION_ARN is required')
     .matches(
       /^arn:aws:lambda:[a-z\-0-9]+:\d{12}:function:[\w-]+$/,

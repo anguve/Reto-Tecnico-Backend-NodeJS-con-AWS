@@ -7,7 +7,7 @@ import * as yup from 'yup';
  * @param {string} originalValue - The original string value.
  * @returns {number | undefined} - The converted number or undefined if invalid.
  */
-const toNumber = (originalValue: string) => {
+export const toNumber = (originalValue: string) => {
   if (originalValue === undefined || originalValue === null || originalValue === '')
     return undefined;
   const parsed = Number(originalValue);
@@ -21,7 +21,7 @@ const toNumber = (originalValue: string) => {
  * @param {string} originalValue - The original string value.
  * @returns {string | undefined} - The original string if valid, otherwise undefined.
  */
-const normalizeString = (originalValue: string) => {
+export const normalizeString = (originalValue: string) => {
   if (typeof originalValue !== 'string') return undefined;
   const v = originalValue.trim().toLowerCase();
   if (v === 'n/a' || v === 'unknown' || v === '') return undefined;
@@ -35,7 +35,7 @@ const normalizeString = (originalValue: string) => {
  * @param {string} originalValue - The original string value representing a date.
  * @returns {string | undefined} - The valid date string or undefined if invalid.
  */
-const normalizeDateString = (originalValue: string) => {
+export const normalizeDateString = (originalValue: string) => {
   if (typeof originalValue !== 'string') return undefined;
   const date = new Date(originalValue);
   return isNaN(date.getTime()) ? undefined : originalValue;

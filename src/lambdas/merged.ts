@@ -1,7 +1,9 @@
 import { MergedController } from '../modules/merged/merged.controller';
+import { MergedRepository } from '../modules/merged/merged.repository';
 import { MergedService } from '../modules/merged/merged.service';
 
-const service = new MergedService();
+const repository = new MergedRepository();
+const service = new MergedService(repository);
 const controller = new MergedController(service);
 
 /**

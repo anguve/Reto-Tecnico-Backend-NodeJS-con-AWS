@@ -21,8 +21,6 @@ export class MergedController {
         }),
       };
     } catch (error) {
-      console.error('Error fetching merged data:', error);
-
       return {
         statusCode: 502,
         body: JSON.stringify({
