@@ -139,6 +139,24 @@ export class InfraStack extends cdk.Stack {
           status: true,
           user: true,
         }),
+
+        throttlingRateLimit: 10,
+        throttlingBurstLimit: 20,
+
+        methodOptions: {
+          '/fusionados/GET': {
+            throttlingRateLimit: 2,
+            throttlingBurstLimit: 5,
+          },
+          '/almacenar/POST': {
+            throttlingRateLimit: 1,
+            throttlingBurstLimit: 2,
+          },
+          '/historial/GET': {
+            throttlingRateLimit: 1,
+            throttlingBurstLimit: 2,
+          },
+        },
       },
       defaultCorsPreflightOptions: {
         allowOrigins: apigateway.Cors.ALL_ORIGINS,
