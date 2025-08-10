@@ -29,6 +29,10 @@ export class MergedService {
     try {
       const cached = await this.repository.getCachedData();
       if (cached) {
+        await this.repository.saveMergedData({
+          totalCharacters: cached.totalCharacters,
+          characters: cached.characters as (Character & { weatherData: WeatherData })[],
+        });
         return {
           totalCharacters: cached.totalCharacters,
           characters: cached.characters as (Character & { weatherData: WeatherData })[],

@@ -10,13 +10,20 @@ export class HistoryController {
       const ascending = queryParams.order === 'asc';
       const lastKey = queryParams.lastKey ? JSON.parse(queryParams.lastKey) : undefined;
 
-      const data = await this.historyService.fetchHistory(limit, lastKey, ascending);
+      const { items, lastEvaluatedKey } = await this.historyService.fetchHistory(
+        limit,
+        lastKey,
+        ascending,
+      );
 
       return {
         statusCode: 200,
         body: JSON.stringify({
           message: 'Historial obtenido correctamente',
-          data,
+          data: {
+            items,
+            lastKey: lastEvaluatedKey ? JSON.stringify(lastEvaluatedKey) : null,
+          },
         }),
       };
     } catch (error) {
