@@ -23,19 +23,16 @@ export class LambdaClient {
         Payload: JSON.stringify(payload),
       });
 
-      console.log(`Invoking Lambda function: ${this.functionName}`);
-
       const response = await lambdaClient.send(command);
 
       if (response.Payload) {
         const result = JSON.parse(Buffer.from(response.Payload).toString());
-        console.log(`Lambda function ${this.functionName} executed successfully`);
+
         return result;
       }
 
       return null;
     } catch (error) {
-      console.log(`Error invoking Lambda function ${this.functionName}:`, error);
       throw error;
     }
   }

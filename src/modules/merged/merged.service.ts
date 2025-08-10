@@ -17,17 +17,9 @@ export class MergedService {
   }
 
   /**
-   * Fetches character data from SWAPI, enriches each character with weather data
-   * based on their homeworld, validates the combined data, saves it to DynamoDB,
-   * and returns the merged results.
-   *
-   * @async
-   * @returns {Promise<{
-   *   totalCharacters: number;
-   *   characters: (Character & { weatherData: WeatherData })[];
-   *   error?: string;
-   * }>} An object containing the total number of characters, an array of merged character and weather data,
-   * and optionally an error message if the operation failed.
+   * Fetches merged character + weather data.
+   * First checks cache (last 30 min), if found returns it,
+   * otherwise calls external APIs, saves to DynamoDB, and returns.
    */
   async fetchMergedData(): Promise<{
     totalCharacters: number;
@@ -35,9 +27,16 @@ export class MergedService {
     error?: string;
   }> {
     try {
+      const cached = await this.repository.getCachedData();
+      if (cached) {
+        return {
+          totalCharacters: cached.totalCharacters,
+          characters: cached.characters as (Character & { weatherData: WeatherData })[],
+        };
+      }
+
       const charactersData = await this.fetchJson(SWAPI_URL);
       const charactersListRaw = this.normalizeCharacters(charactersData);
-
       const charactersList = await charactersListSchema.validate(charactersListRaw);
 
       const limit = pLimit(5);
@@ -74,6 +73,7 @@ export class MergedService {
       };
     }
   }
+
   /**
    * Fetches JSON data from a given URL.
    *
@@ -98,12 +98,12 @@ export class MergedService {
    * @param {any} data - The raw data to normalize.
    * @returns {any[]} An array of character objects.
    */
-
   private normalizeCharacters(data: any): any[] {
     if (Array.isArray(data?.results)) return data.results;
     if (Array.isArray(data)) return data;
     return [];
   }
+
   /**
    * Extracts the planet number from a given homeworld URL.
    *
@@ -115,6 +115,7 @@ export class MergedService {
     const match = homeworldUrl.match(/\/planets\/(\d+)/);
     return match ? parseInt(match[1], 10) : 0;
   }
+
   /**
    * Builds the weather API URL based on the given planet number.
    *
