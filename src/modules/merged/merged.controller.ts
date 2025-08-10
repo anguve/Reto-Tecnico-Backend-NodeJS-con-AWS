@@ -27,8 +27,7 @@ export class MergedController {
         statusCode: 502,
         body: JSON.stringify({
           message: 'Failed to fetch data from controller',
-          error:
-            error instanceof Error ? { message: error.message, stack: error.stack } : String(error),
+          error,
         }),
       };
     }

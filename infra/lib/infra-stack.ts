@@ -57,6 +57,7 @@ export class InfraStack extends cdk.Stack {
         exclude: ['history.*', 'storage.*', '*.ts', '*.d.ts', '*.js.map', '*.d.ts.map'],
       }),
       environment: commonLambdaEnvironment,
+      tracing: lambda.Tracing.ACTIVE,
     });
 
     const storageLambda = new lambda.Function(this, 'StorageLambda', {
@@ -69,6 +70,7 @@ export class InfraStack extends cdk.Stack {
         exclude: ['history.*', 'merged.*', '*.ts', '*.d.ts', '*.js.map', '*.d.ts.map'],
       }),
       environment: commonLambdaEnvironment,
+      tracing: lambda.Tracing.ACTIVE,
     });
 
     const historyLambda = new lambda.Function(this, 'HistoryLambda', {
@@ -81,7 +83,13 @@ export class InfraStack extends cdk.Stack {
         exclude: ['merged.*', 'storage.*', '*.ts', '*.d.ts', '*.js.map', '*.d.ts.map'],
       }),
       environment: commonLambdaEnvironment,
+      tracing: lambda.Tracing.ACTIVE,
     });
+
+    const xrayPolicy = iam.ManagedPolicy.fromAwsManagedPolicyName('AWSXRayDaemonWriteAccess');
+    mergedLambda.role?.addManagedPolicy(xrayPolicy);
+    storageLambda.role?.addManagedPolicy(xrayPolicy);
+    historyLambda.role?.addManagedPolicy(xrayPolicy);
 
     tabla.grantReadWriteData(mergedLambda);
     storageTable.grantReadWriteData(storageLambda);
@@ -157,6 +165,7 @@ export class InfraStack extends cdk.Stack {
             throttlingBurstLimit: 2,
           },
         },
+        tracingEnabled: true,
       },
       defaultCorsPreflightOptions: {
         allowOrigins: apigateway.Cors.ALL_ORIGINS,

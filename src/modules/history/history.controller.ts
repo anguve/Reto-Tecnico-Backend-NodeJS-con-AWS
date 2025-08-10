@@ -31,8 +31,7 @@ export class HistoryController {
         statusCode: 502,
         body: JSON.stringify({
           message: 'Error al obtener historial',
-          error:
-            error instanceof Error ? { message: error.message, stack: error.stack } : String(error),
+          error,
         }),
       };
     }

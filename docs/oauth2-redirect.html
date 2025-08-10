@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+  <body>
+    <script>
+      'use strict';
+      (function () {
+        function send(o) {
+          if (window.opener) {
+            window.opener.postMessage(o, window.location.origin);
+          }
+        }
+        var qp = {};
+        window.location.search
+          .replace(/^\?/, '')
+          .split('&')
+          .forEach(function (kv) {
+            var s = kv.split('=');
+            qp[decodeURIComponent(s[0])] = decodeURIComponent(s[1] || '');
+          });
+        send(qp);
+        window.close();
+      })();
+    </script>
+  </body>
+</html>

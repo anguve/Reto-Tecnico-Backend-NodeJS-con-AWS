@@ -1,0 +1,164 @@
+openapi: 3.0.3
+info:
+  title: AWS-RIMAC API
+  version: '1.0.0'
+  description: |
+    Documentación generada a partir de la colección Postman proporcionada.
+    Incluye endpoints de **/fusionados**, **/almacenar** y **/historial**.
+servers:
+  - url: https://sqjx0o7fd1.execute-api.us-east-2.amazonaws.com/prod
+    description: Prod (API Gateway)
+security:
+  - bearerAuth: []
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+    cognitoOauth:
+      type: oauth2
+      flows:
+        authorizationCode:
+          authorizationUrl: https://us-east-2cwkyxa9iv.auth.us-east-2.amazoncognito.com/oauth2/authorize
+          tokenUrl: https://us-east-2cwkyxa9iv.auth.us-east-2.amazoncognito.com/oauth2/token
+          scopes:
+            openid: OpenID scope
+            email: Email scope
+            profile: Profile scope
+  schemas:
+    StorageData:
+      type: object
+      required: [title, description, userId, timestamp]
+      properties:
+        title:
+          type: string
+          minLength: 1
+          maxLength: 100
+          description: Título del registro
+        description:
+          type: string
+          minLength: 1
+          maxLength: 500
+          description: Descripción del registro
+        userId:
+          type: string
+          minLength: 1
+          maxLength: 50
+          description: Identificador del usuario
+        timestamp:
+          type: number
+          minimum: 1
+          description: Epoch ms (UTC)
+      example:
+        title: 'Mi dato personalizado'
+        description: 'Información para almacenar'
+        userId: 'user-123'
+        timestamp: 1691563200000
+    StorageRecord:
+      allOf:
+        - $ref: '#/components/schemas/StorageData'
+        - type: object
+          properties:
+            id:
+              type: string
+              description: Identificador del ítem (si aplica)
+    PaginatedHistory:
+      type: object
+      properties:
+        data:
+          type: object
+          properties:
+            items:
+              type: array
+              items:
+                $ref: '#/components/schemas/StorageRecord'
+            lastKey:
+              type: string
+              description: Cursor para la siguiente página (cuando existe)
+    Error:
+      type: object
+      properties:
+        message:
+          type: string
+        error:
+          type: object
+paths:
+  /fusionados:
+    get:
+      tags: [Fusionados]
+      summary: Obtiene datos fusionados (SWAPI + Weather)
+      description: Endpoint de lectura que devuelve un merge de personajes y clima.
+      responses:
+        '200':
+          description: OK
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '500':
+          description: Internal server error
+  /almacenar:
+    post:
+      tags: [Storage]
+      summary: Almacena un registro
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StorageData'
+      responses:
+        '201':
+          description: Created
+        '400':
+          description: Bad Request (validación)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '500':
+          description: Internal server error
+  /historial:
+    get:
+      tags: [Historial]
+      summary: Lista registros con paginación por cursor
+      parameters:
+        - in: query
+          name: limit
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+          description: Cantidad de items por página (por defecto 1 en la colección)
+        - in: query
+          name: order
+          required: false
+          schema:
+            type: string
+            enum: [asc, desc]
+          description: Orden de los resultados (por defecto desc)
+        - in: query
+          name: lastKey
+          required: false
+          schema:
+            type: string
+          description: Cursor devuelto por la respuesta anterior
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedHistory'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '500':
+          description: Internal server error
