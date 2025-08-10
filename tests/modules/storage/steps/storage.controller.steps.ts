@@ -55,7 +55,6 @@ defineFeature(feature, (test) => {
     });
 
     when('I call store with invalid data', async () => {
-      // Se prueba con datos inválidos que hacen fallar la validación o almacenamiento
       response = await controller.store(invalidData);
     });
 
