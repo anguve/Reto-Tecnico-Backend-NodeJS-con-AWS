@@ -18,6 +18,7 @@ export class MergedRepository {
   async saveMergedData(data: { totalCharacters: number; characters: unknown[] }): Promise<void> {
     const item = {
       id: uuidv4(),
+      historyPartition: 'history',
       totalCharacters: data.totalCharacters,
       characters: JSON.stringify(data.characters),
       timestamp: Date.now(),
