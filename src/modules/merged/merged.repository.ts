@@ -2,6 +2,7 @@ import { PutItemCommand, QueryCommand } from '@aws-sdk/client-dynamodb';
 import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
 import { v4 as uuidv4 } from 'uuid';
 import { dynamoClient } from '../../database/dynamo.client';
+import { envs } from '../../config/env';
 
 export class MergedRepository {
   private readonly tableName = 'FusionadosTable';
@@ -27,7 +28,7 @@ export class MergedRepository {
    * Busca datos cacheados de los últimos 30 minutos.
    */
   async getCachedData(): Promise<{ totalCharacters: number; characters: unknown[] } | null> {
-    const CACHE_TTL_MINUTES = 1;
+    const CACHE_TTL_MINUTES = envs.CACHE_TTL_MINUTES;
     const thirtyMinutesAgo = Date.now() - CACHE_TTL_MINUTES * 60 * 1000;
 
     const command = new QueryCommand({

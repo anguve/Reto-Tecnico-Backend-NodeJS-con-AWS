@@ -53,6 +53,16 @@ const environmentVariablesSchema = object({
     .required('LAMBDA_MEMORY_SIZE is required')
     .min(128, 'LAMBDA_MEMORY_SIZE must be at least 128 MB')
     .max(10240, 'LAMBDA_MEMORY_SIZE must be at most 10240 MB (10 GB)'),
+
+  CACHE_TTL_MINUTES: number()
+    .required('CACHE_TTL_MINUTES  is required')
+    .min(1, 'CACHE_TTL_MINUTES must be at least 1 minute')
+    .max(1440, 'CACHE_TTL_MINUTES must be at most 1440 minutes (24 hours)'),
+
+  USER_POOL_ID: string()
+    .required('USER_POOL_ID is required')
+    .min(16, 'USER_POOL_ID must be at least 16 characters')
+    .matches(/^[a-z0-9-]+_[A-Za-z0-9]+$/, 'USER_POOL_ID must look like "us-east-2_XXXXXXXXX"'),
 }).noUnknown('Unknown environment variable detected');
 
 export const envs = environmentVariablesSchema.validateSync(process.env, {

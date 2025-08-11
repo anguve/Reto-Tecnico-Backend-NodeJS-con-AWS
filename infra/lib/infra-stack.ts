@@ -15,7 +15,7 @@ export class InfraStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
 
-    const USER_POOL_ID = 'us-east-2_CWKyxA9IV';
+    const USER_POOL_ID = envs.USER_POOL_ID;
 
     const tabla = new dynamodb.Table(this, 'TablaFusionados', {
       tableName: 'FusionadosTable',
@@ -45,6 +45,8 @@ export class InfraStack extends cdk.Stack {
       LAMBDA_HISTORY_FUNCTION_ARN: envs.LAMBDA_HISTORY_FUNCTION_ARN,
       LAMBDA_TIMEOUT_SECONDS: envs.LAMBDA_TIMEOUT_SECONDS.toString(),
       LAMBDA_MEMORY_SIZE: envs.LAMBDA_MEMORY_SIZE.toString(),
+      CACHE_TTL_MINUTES: envs.CACHE_TTL_MINUTES.toString(),
+      USER_POOL_ID: USER_POOL_ID,
     };
 
     const mergedLambda = new lambda.Function(this, 'MergedLambda', {
