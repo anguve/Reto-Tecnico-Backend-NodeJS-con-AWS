@@ -12,12 +12,9 @@ Promise.all(
         outfile: `dist/lambdas/${name}.js`,
         external: ['aws-sdk'],
       })
-      .then(() => {
-        console.log(`Lambda '${name}' bundled successfully`);
-      }),
+      .then(() => {}),
   ),
 ).catch((error) => {
-  console.error('Error bundling one of the Lambdas with esbuild.');
   console.error(error);
   process.exit(1);
 });
